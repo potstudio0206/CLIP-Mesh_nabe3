@@ -2,42 +2,34 @@
 # and performs optimization as highlighted in paper
 
 import os
+from datetime import datetime
+
 import clip
-import yaml
-import torch
 import kornia
+import matplotlib.pyplot as plt
+import numpy as np
+import nvdiffrast.torch as dr
+import torch
 import torchvision
+import yaml
+from dalle2_pytorch import DiffusionPrior, DiffusionPriorNetwork
+from PIL import Image
+from tqdm import tqdm
 
-import numpy                as np
-import nvdiffrast.torch     as dr
-import matplotlib.pyplot    as plt
+from nvdiffmodeling.src import mesh, obj, regularizer, render, texture, util
+from utils.camera import CameraBatch, get_camera_params
+from utils.helpers import cosine_avg, create_scene
+from utils.limit_subdivide import LimitSubdivide
+from utils.resize_right import cubic, lanczos2, lanczos3, linear, resize
+from utils.video import Video
 
-from tqdm                   import tqdm
-from datetime               import datetime
-from dalle2_pytorch         import DiffusionPrior, DiffusionPriorNetwork
-
-from PIL                    import Image
-from utils.video            import Video
-from utils.limit_subdivide  import LimitSubdivide
-from utils.helpers          import cosine_avg, create_scene
-from utils.camera           import CameraBatch, get_camera_params
-from utils.resize_right     import resize, cubic, linear, lanczos2, lanczos3
-
-from nvdiffmodeling.src     import obj
-from nvdiffmodeling.src     import util
-from nvdiffmodeling.src     import mesh
-from nvdiffmodeling.src     import render
-from nvdiffmodeling.src     import texture
-from nvdiffmodeling.src     import regularizer
 
 def loop(cfg):
 
     # Set unique output path
     now = datetime.now()
-    cfg["path"] = os.path.join(
-        cfg["output_path"],
-        now.strftime("%m-%d-%Y_%H-%M-%S") + cfg["text_prompt"]
-    )
+    cfg["path"] = cfg["output_path"]
+    
     
     cfg['path'] = cfg['path'].replace(" ", "_")
     os.makedirs(cfg['path'])
@@ -58,10 +50,10 @@ def loop(cfg):
     clip_std  = torch.tensor([0.26862954, 0.26130258, 0.27577711], device=device)
 
     # Initialize Video
-    video = Video(cfg["path"])
+    video = Video(cfg["path"], name="y_video.mp4")
 
     # Intialize GL Context
-    glctx = dr.RasterizeGLContext()
+    glctx = dr.RasterizeCudaContext()
 
     # Get text embedding
     print("Text is %s" % cfg["text_prompt"])
@@ -355,7 +347,7 @@ def loop(cfg):
                     background=torch.ones(1, cfg["log_res"], cfg["log_res"], 3).to(device)
                 )
 
-                log_image = video.ready_image(log_image)
+                log_image = video.ready_image(log_image, write_video = (it+1) % cfg["video_log_interval"] == 0)
 
 
         # Render scene for training
@@ -489,7 +481,7 @@ def loop(cfg):
                 plt.imshow(ndarr)
                 plt.show()
 
-            im.save(os.path.join(cfg["path"], 'epoch_%d.png' % it))
+            im.save(os.path.join(cfg["path"], 'output.png'))
 
         # Convert image to image embeddings
         image_embeds = model.encode_image(
