@@ -66,5 +66,5 @@ class Predictor(BasePredictor):
         os.system(f"obj2gltf -i  /outputs/meshes/mesh_0/mesh.obj -o {target_glb_path}")
 
         # return Path(target_path)
-        return Path(target_glb_path)
+        return Path("/outputs/meshes/mesh_0/mesh.obj")
 
