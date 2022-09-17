@@ -54,6 +54,8 @@ build:
     - "npm install -g obj2gltf"
     - pip install clip@git+https://github.com/openai/CLIP.git@b46f5ac7587d2e1862f8b7b1573179d80dcdd620 imageio cython imageio-ffmpeg kornia numpy nvdiffrast@git+https://github.com/NVlabs/nvdiffrast.git@fad71a4ad3dc8530a4eeaeb55a65b2e8c127d69d Pillow PyGLM resize-right scipy smplx tqdm Ninja pyyaml matplotlib>=3.3.0
     - "echo \"\
+git config --global --add safe.directory '*' && \
+git submodule update --init --recursive && \    
 cd loop_limitation && \
 pip install . && \
 cd .. && \
@@ -62,11 +64,9 @@ cd DALLE2-pytorch && \
 pip install . && \
 cd .. && \
 \
-mkdir weights &&\
-wget https://huggingface.co/spaces/NasirKhalid24/Dalle2-Diffusion-Prior/resolve/main/larger-model.pth -O ./weights/model.pth\
-\
-git submodule update --init --recursive\
-\" > initialize.sh "
+mkdir -p weights &&\
+wget https://huggingface.co/spaces/NasirKhalid24/Dalle2-Diffusion-Prior/resolve/main/larger-model.pth -O ./weights/model.pth \
+\" > initialize.sh"
 # predict.py defines how predictions are run on your model
 predict: "predict.py:Predictor"
 

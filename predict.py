@@ -30,6 +30,8 @@ class Predictor(BasePredictor):
         scales: float = Input(description="Scale mesh size by some value", default=2.0)
     ) -> Path:
          
+        print("output path before running: ")
+        os.system("ls -l /outputs/")
         os.system(f"""
             python main.py \\
                 --config configs/single.yml \\
@@ -42,7 +44,8 @@ class Predictor(BasePredictor):
                 --batch_size {batch_size} \\
                 --texture_resolution {texture_resolution} \\
         """)
-        
+        print("output path after running: ")
+        os.system("ls -l /outputs/")
 
         # ms = pymeshlab.MeshSet()
 
