@@ -470,7 +470,7 @@ def loop(cfg):
             s_log = train_render[torch.randint(low=0, high=cfg["batch_size"], size=(5 if cfg["batch_size"] > 5 else cfg["batch_size"], )) , :, :, :]
 
             # Source code of save_image
-            s_log = torchvision.utils.make_grid(s_log)
+            s_log = torchvision.utils.make_grid(s_log, nrow=2)
 
             # Add 0.5 after unnormalizing to [0, 255] to round to nearest integer
             ndarr = s_log.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
