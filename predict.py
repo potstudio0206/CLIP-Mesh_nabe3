@@ -23,7 +23,7 @@ class Predictor(BasePredictor):
         text_prompt: str = Input(description="Text to render", default="A blue robotic cat. Unreal engine. Trending on artstation."),
         seed: int = Input(description="random seed", default=123),
         epoch: int = Input(description="training epochs", default=1000),
-        lr: float = Input(description="maximum learning rate", default=5e-4),
+        lr: float = Input(description="maximum learning rate", default=0.01),
         train_res: int = Input(description="Resolution of render before scaling to 224x224. must be a multiple of 8", default=384),
         texture_resolution: int = Input(description="resolution of texture maps", default=512),
         batch_size: int = Input(description="How many images of shape are rendered at one epoch)", default=50),
