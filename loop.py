@@ -347,7 +347,9 @@ def loop(cfg):
                     background=torch.ones(1, cfg["log_res"], cfg["log_res"], 3).to(device)
                 )
 
-                log_image = video.ready_image(log_image, write_video = (it+1) % cfg["video_log_interval"] == 0)
+                write_video = ((it+1) % cfg["video_log_interval"]) == 0
+                print("write_video", write_video)
+                log_image = video.ready_image(log_image, write_video=write_video)
 
 
         # Render scene for training

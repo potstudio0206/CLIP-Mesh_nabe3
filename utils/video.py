@@ -31,6 +31,7 @@ class Video():
         self.images.append(image)
 
         if write_video:
+            print("writing video", self.path + self.name)
             writer = imageio.get_writer(self.path+self.name, mode=self.mode, fps=self.fps, codec=self.codec, bitrate=self.bitrate)
             for frame in self.images:
                 writer.append_data(frame)
