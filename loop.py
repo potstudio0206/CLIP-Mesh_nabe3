@@ -32,7 +32,7 @@ def loop(cfg):
     
     
     cfg['path'] = cfg['path'].replace(" ", "_")
-    os.makedirs(cfg['path'])
+    os.makedirs(cfg['path'], exist_ok=True)
     
     with open(os.path.join(cfg["path"], "config.yml"), 'w') as outfile:
         yaml.dump(cfg, outfile, default_flow_style=False)
@@ -534,7 +534,7 @@ def loop(cfg):
 
     for idx, m in enumerate(render_meshes):
         out_path = os.path.join( cfg["path"], "meshes", "mesh_%d" % idx )
-        os.makedirs(out_path)
+        os.makedirs(out_path, exist_ok=True)
 
         obj.write_obj(
             out_path,
