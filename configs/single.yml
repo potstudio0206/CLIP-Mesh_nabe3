@@ -35,7 +35,7 @@ train_res: 256           # Resolution of render before scaling to 224x224
 resize_method: cubic     # Method for resizing from cubic, linear, lanczos2, lanczos3
 bsdf: diffuse            # diffuse or pbr (diffuse recommended)
 texture_resolution: 512  # Resolution of texture maps (ex: 512x512)
-channels: 4              # Texture map image channels (4 for alpha, 3 for RGB only)
+channels: 3              # Texture map image channels (4 for alpha, 3 for RGB only)
 init_c: 0.85             # Initial alpha channel value if channels == 4
 kernel_size: 7           # Kernel size for gaussian blurring of textures to reduce artifacts
 blur_sigma: 3            # Variance of gaussian kernel for blurring of textures
