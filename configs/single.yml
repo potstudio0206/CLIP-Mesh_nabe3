@@ -76,13 +76,13 @@ colab: false             # Print logging image (only for Google Colab)
 
 ## Add meshes to the scene here
 meshes: 
-  - primitives/sphere.obj
+  - primitives/avatar_simple.obj
 
 ## Unit scale the meshes?
 unit: 
   - true
 
-## What parameters to optimize for each mesh or none at all (vertices, texture map, normal map, true for random texture; false for using defined texture) ?
+## What parameters to ogitptimize for each mesh or none at all (vertices, texture map, normal map, true for random texture; false for using defined texture) ?
 train_mesh_idx:
   - [verts, texture, normal, true]
 
