@@ -1,0 +1,14 @@
+LICENSE
+README.md
+setup.py
+./src/loop.cpp
+./src/loopEvaluation/LoopData.cpp
+./src/loopEvaluation/eigenStructure.cpp
+./src/loopEvaluation/limitationSurfaceComputation.cpp
+./src/loopEvaluation/pointCollect.cpp
+./src/loopEvaluation/pointEvaluate.cpp
+loop_limitation.egg-info/PKG-INFO
+loop_limitation.egg-info/SOURCES.txt
+loop_limitation.egg-info/dependency_links.txt
+loop_limitation.egg-info/requires.txt
+loop_limitation.egg-info/top_level.txt
