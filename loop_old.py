@@ -1,10 +1,9 @@
-# Main optimization loop, takes in dictionary config
+#Main optimization loop, takes in dictionary config
 # and performs optimization as highlighted in paper
 
 import os
 from datetime import datetime
 
-#import clip
 import open_clip
 import kornia
 import matplotlib.pyplot as plt
@@ -37,6 +36,7 @@ def loop(cfg):
         print("'%s'is exist"% cfg["path"])
     else:
         os.makedirs(cfg['path'], exist_ok=True)
+        
         with open(os.path.join(cfg["path"], "config.yml"), 'w') as outfile:
             yaml.dump(cfg, outfile, default_flow_style=False)
 
@@ -62,8 +62,7 @@ def loop(cfg):
         # Get text embedding
         print("Text is %s" % cfg["text_prompt"])
 
-        #texts_embeds = clip.tokenize([cfg["text_prompt"]]).to(device)
-        texts_embeds = tokenizer(cfg["text_prompt"]).to(device)
+        texts_embeds = tokenizer([cfg["text_prompt"]]).to(device)
         with torch.no_grad():
             texts_embeds = model.encode_text(texts_embeds).detach()
             texts_embeds = texts_embeds / texts_embeds.norm(dim=1, keepdim=True)
@@ -94,7 +93,7 @@ def loop(cfg):
             diffusion_prior.load_state_dict(state_dict, strict=True)
 
             text_cond = dict(text_embed = texts_embeds)
-            prior_embeds = diffusion_prior.p_sample_loop((1, 512), text_cond = text_cond) #本来はdiffusion_prior.p_sample_loop((1,512),text_cond=text_cond)
+            prior_embeds = diffusion_prior.p_sample_loop((1, 512), text_cond = text_cond)
 
             prior_embeds = prior_embeds.detach().clone().to(device)
 
@@ -109,7 +108,6 @@ def loop(cfg):
 
         for idx, m in enumerate(cfg["meshes"]): # Loop over each mesh path
 
-            print('idx is %d'% idx)
             load_mesh = obj.load_obj(m)
 
             if cfg["unit"][idx]: # If mesh is to be unit sized
@@ -228,7 +226,7 @@ def loop(cfg):
         t_loop = tqdm(range(cfg["epochs"]), leave=False)
 
         for it in t_loop:
-            #print("\"it\" is:",it) 
+            
             render_meshes = []          # store meshes with texture that will be rendered
             render_meshes_notex = []    # store meshes without texture that will be rendered
 
@@ -236,6 +234,7 @@ def loop(cfg):
 
             # For each mesh initialized
             for i, m in enumerate(meshes):
+                
                 # Limit subdivide vertices if needed
                 if subdiv[i] != None:
 
@@ -328,8 +327,7 @@ def loop(cfg):
             # Logging
             if it % cfg["log_interval"] == 0:
 
-                #with torch.no_grad():
-                with torch.no_grad(),torch.cuda.amp.autocast():
+                with torch.no_grad():
                     
                     params = get_camera_params(
                         cfg["log_elev"],
@@ -338,14 +336,7 @@ def loop(cfg):
                         cfg["log_res"],
                         cfg["log_fov"]
                     )
-                    cam_z = cfg["log_dist"] * np.cos(np.radians(cfg["log_elev"])) * np.sin(np.radians(rot_ang))
-                    cam_y = cfg["log_dist"] * np.sin(np.radians(cfg["log_elev"]))
-                    cam_x = cfg["log_dist"] * np.cos(np.radians(cfg["log_elev"])) * np.cos(np.radians(rot_ang))
 
-                    # print("cam_x is "+ str(cam_x) + "\n")
-                    # print("cam_y is "+ str(cam_y) + "\n")
-                    # print("cam_z is "+ str(cam_z) + "\n")
-                    print(np.radians(rot_ang))
                     rot_ang += 1
 
                     log_image = render.render_mesh(
@@ -361,54 +352,13 @@ def loop(cfg):
                     )
 
                     write_video = ((it+1) % cfg["video_log_interval"]) == 0
-                    print("write_video:", write_video)
-                    #log_image = video.ready_image(log_image, write_video=write_video)
-                    log_image = video.ready_image(log_image,write_video=True)
+                    print("write_video", write_video)
+                    log_image = video.ready_image(log_image, write_video=write_video)
+
 
             # Render scene for training
             params_camera = next(iter(cams))
 
-            #追記部分
-            texts_embeds = tokenizer(cfg["text_prompt"]).to(device)
-            texts_embeds_above = tokenizer(cfg["text_prompt"] + "from_above").to(device)
-            texts_embeds_below = tokenizer(cfg["text_prompt"] + "from_below").to(device)
-            texts_embeds_front = tokenizer(cfg["text_prompt"] + "from_front").to(device)
-            texts_embeds_back = tokenizer(cfg["text_prompt"] + "from_back").to(device)
-            texts_embeds_rightside = tokenizer(cfg["text_prompt"] + "from_rightside").to(device)
-            texts_embeds_leftside = tokenizer(cfg["text_prompt"] + "from_leftside").to(device)
-            if((type(params['campos']) is np.ndarray) == True):
-                # print(type(params['campos']))
-                cams_norm = (params['campos'].astype(np.float64) / np.linalg.norm(params['campos'],ord=2))#cams_norm の中身は[x座標,y座標,z座標]のベクトルのnormを1にしたもの。
-                # print(type(params['campos']))
-                # print(type(np.linalg.norm(params['campos'],ord=2)))
-                cams_norm = torch.from_numpy(cams_norm.astype(np.float32)).clone()
-                cams_norm = cams_norm.to(device)
-            else:
-                npcampos = params['campos'].to('cpu').detach().numpy().copy()
-                cams_norm = (npcampos.astype(np.float64) / np.linalg.norm(npcampos,ord=2))
-                cams_norm = torch.from_numpy(cams_norm.astype(np.float32)).clone()
-                cams_norm = cams_norm.to(device)
-            with torch.no_grad():
-                texts_embeds = model.encode_text(texts_embeds).detach()
-                texts_embeds_above = model.encode_text(texts_embeds_above).detach()
-                texts_embeds_below = model.encode_text(texts_embeds_below).detach()
-                texts_embeds_front = model.encode_text(texts_embeds_front).detach()
-                texts_embeds_back = model.encode_text(texts_embeds_back).detach()
-                texts_embeds_rightside = model.encode_text(texts_embeds_rightside).detach()
-                texts_embeds_leftside = model.encode_text(texts_embeds_leftside).detach()
-                texts_embeds += texts_embeds_above * torch.clip(cams_norm[0][1],min=0)
-                texts_embeds += texts_embeds_below * torch.clip((cams_norm[0][1] * -1),min=0)
-                texts_embeds += texts_embeds_front * torch.clip(cams_norm[0][2],min=0)
-                texts_embeds += texts_embeds_back * torch.clip((cams_norm[0][2] * -1),min=0)
-                texts_embeds += texts_embeds_rightside * torch.clip(cams_norm[0][0],min=0)
-                texts_embeds += texts_embeds_leftside * torch.clip((cams_norm[0][0] * -1),min=0)
-                texts_embeds = texts_embeds / texts_embeds.norm(dim=1, keepdim=True)
-            # with torch.no_grad():
-            #     texts_embeds = model.encode_text(texts_embeds).detach()
-            #     texts_embeds = texts_embeds / texts_embeds.norm(dim=1, keepdim=True)
-
-            # print("params_camera is")
-            # print(params_camera.items())
             for key in params_camera:
                 params_camera[key] = params_camera[key].to(device)
 
@@ -536,8 +486,7 @@ def loop(cfg):
                     plt.figure()
                     plt.imshow(ndarr)
                     plt.show()
-            # output = "output"+str(it) + ".png"
-                #im.save(os.path.join(cfg["path"],"pictures",output))
+
                 im.save(os.path.join(cfg["path"], 'output.png'))
 
             # Convert image to image embeddings
@@ -586,17 +535,7 @@ def loop(cfg):
             texture_map.clamp_(min=0, max=1)
 
             t_loop.set_description("CLIP Loss = %.6f" % clip_loss.item() )
-            # print(type(clip_loss))
-            # print(clip_loss)
-            # 追記部分
-        #     loss = clip_loss.item()
-        #     # print(type(loss))
-        #     # print(loss)
-        #     losses = []
-        #     losses += [loss]
-        # losses = losses.to('cpu')
-        # losses_num = np.array(losses)
-        # np.savetxt('./loss.csv',losses_num)
+        
         video.close()
 
         for idx, m in enumerate(render_meshes):
@@ -608,4 +547,4 @@ def loop(cfg):
                 m
             )
 
-    return cfg["path"]
+        return cfg["path"]

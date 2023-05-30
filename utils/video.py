@@ -19,7 +19,7 @@ class Video():
         self.bitrate = bitrate
         self.images = []
 
-    def ready_image(self, image, write_video=False):
+    def ready_image(self, image, write_video=True):
         # assuming channels last - as renderer returns it
         if len(image.shape) == 4: 
             image = image.squeeze(0)[..., :3].detach().cpu().numpy()

@@ -223,14 +223,17 @@ class CameraBatch(torch.utils.data.Dataset):
         cam_z = dist * np.cos(elev) * np.sin(azim)
         cam_y = dist * np.sin(elev)
         cam_x = dist * np.cos(elev) * np.cos(azim)
-        
+        # print("cam_x is " + str(cam_x) + "\n")
+        # print("cam_y is " + str(cam_y) + "\n")
+        # print("cam_z is " + str(cam_z) + "\n")
         if self.aug_loc:
 
             # Random offset
             limit  = self.dist_min // 2
             rand_x = np.random.uniform( -limit, limit )
             rand_y = np.random.uniform( -limit, limit )
-
+            # print("rand_x is" + str(rand_x) + "\n")
+            # print("rand_y is" + str(rand_y) + "\n")
             modl = glm.translate(glm.mat4(), glm.vec3(rand_x, rand_y, 0))
 
         else:
@@ -248,7 +251,9 @@ class CameraBatch(torch.utils.data.Dataset):
 
         mvp     = np.matmul(proj_mtx, r_mv).astype(np.float32)
         campos  = np.linalg.inv(r_mv)[:3, 3]
-
+        # print("campos is")
+        # print(campos)
+        # print("\n")
         if self.aug_light:
             lightpos = cosine_sample(campos)*dist
         else:

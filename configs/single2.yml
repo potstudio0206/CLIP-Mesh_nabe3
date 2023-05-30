@@ -22,7 +22,7 @@ diffusion_prior_network_normformer: false
 
 ## Parameters for diffusion prior (code by lucidrains)
 diffusion_prior_embed_dim: 512
-diffusion_prior_timesteps: 1000 
+diffusion_prior_timesteps: 1000
 diffusion_prior_cond_drop_prob: 0.1
 diffusion_prior_loss_type: l2
 diffusion_prior_condition_on_text_encodings: false
@@ -30,12 +30,12 @@ diffusion_prior_condition_on_text_encodings: false
 # Parameters
 epochs: 2000             # Number of optimization steps
 lr: 0.01                 # Maximum learning rate
-batch_size: 100           # How many images of shape are rendered at one epoch
-train_res: 256           # Resolution of render before scaling to 224x224
+batch_size: 25           # How many images of shape are rendered at one epoch
+train_res: 360           # Resolution of render before scaling to 224x224
 resize_method: cubic     # Method for resizing from cubic, linear, lanczos2, lanczos3
 bsdf: diffuse            # diffuse or pbr (diffuse recommended)
 texture_resolution: 512  # Resolution of texture maps (ex: 512x512)
-channels: 3              # Texture map image channels (4 for alpha, 3 for RGB only)
+channels: 4              # Texture map image channels (4 for alpha, 3 for RGB only)
 init_c: 0.85             # Initial alpha channel value if channels == 4
 kernel_size: 7           # Kernel size for gaussian blurring of textures to reduce artifacts
 blur_sigma: 3            # Variance of gaussian kernel for blurring of textures
@@ -63,7 +63,7 @@ aug_loc: true            # Offset mesh from center of image?
 
 # Logging Parameters
 log_interval: 5          # Interval for logging
-log_interval_im: 10     # Image logging interval
+log_interval_im: 250     # Image logging interval
 video_log_interval: 20
 log_elev: 30.0           # Logging elevation angle
 log_fov: 60.0            # Logging field of view
@@ -76,20 +76,19 @@ colab: false             # Print logging image (only for Google Colab)
 
 ## Add meshes to the scene here
 meshes: 
-# - primitives/avatar_simple.obj
   - primitives/sphere.obj
 
 ## Unit scale the meshes?
 unit: 
   - true
 
-## What parameters to ogitptimize for each mesh or none at all (vertices, texture map, normal map, true for random texture; false for using defined texture) ?
+## What parameters to optimize for each mesh or none at all (vertices, texture map, normal map, true for random texture; false for using defined texture) ?
 train_mesh_idx:
   - [verts, texture, normal, true]
 
 ## Scale mesh size by some value
 scales:
-  - 3.0
+  - 1.0
 
 ## After scaling (x, y, z) offset vertices (note that axis are +x, -y, +z)
 offsets:

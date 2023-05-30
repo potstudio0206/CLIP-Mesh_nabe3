@@ -11,7 +11,7 @@ import random
 import argparse
 import numpy as np
 import mediapy
-from loop import loop
+from loop_old import loop
 import trimesh
 from PIL import Image
 #from pyglet.gl import *
